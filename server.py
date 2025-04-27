@@ -1,30 +1,21 @@
-from flask import Flask, request, Response
-import json
+from flask import Flask, request, jsonify
+from flask_cors import CORS  # <<< เพิ่มบรรทัดนี้
 
 app = Flask(__name__)
+CORS(app)  # <<< เพิ่มบรรทัดนี้ด้วย
 
-@app.route("/", methods=["GET"])
-def home():
-    return "Hello from Godji Oracle! 🌟"
-
-@app.route("/fortune", methods=["POST"])
+@app.route('/fortune', methods=['POST'])
 def fortune():
-    data = request.get_json()
-    birth_date = data.get("birth_date")
-
-    # ตรงนี้คือคำทำนาย
+    data = request.json
+    birth_date = data.get('birth_date')
+    # ตรงนี้ใส่ลอจิกคำทำนายได้
     fortune_text = "วันนี้เป็นวันที่สดใส โอกาสใหม่รออยู่ ✨"
     tip_text = "อย่าลืมยิ้มให้ตัวเองในกระจกนะ! 🍀"
-
-    response_data = {
+    return jsonify({
         "birth_date": birth_date,
         "fortune": fortune_text,
         "tip": tip_text
-    }
+    })
 
-    # 👇 ใช้ json.dumps และ Response ตรง ๆ เพื่อไม่ escape ภาษาไทย
-    response_json = json.dumps(response_data, ensure_ascii=False)
-    return Response(response_json, content_type="application/json; charset=utf-8")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
