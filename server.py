@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, Response
+import json
 
 app = Flask(__name__)
 
@@ -11,7 +12,7 @@ def fortune():
     data = request.get_json()
     birth_date = data.get("birth_date")
 
-    # ตัวอย่างคำทำนาย (เอาไว้เสกต่อเพิ่มได้)
+    # ตรงนี้คือคำทำนาย
     fortune_text = "วันนี้เป็นวันที่สดใส โอกาสใหม่รออยู่ ✨"
     tip_text = "อย่าลืมยิ้มให้ตัวเองในกระจกนะ! 🍀"
 
@@ -21,10 +22,9 @@ def fortune():
         "tip": tip_text
     }
 
-    # 👇 สำคัญมาก เพื่อให้ภาษาไทยไม่เพี้ยน
-    response = make_response(jsonify(response_data))
-    response.headers['Content-Type'] = 'application/json; charset=utf-8'
-    return response
+    # 👇 ใช้ json.dumps และ Response ตรง ๆ เพื่อไม่ escape ภาษาไทย
+    response_json = json.dumps(response_data, ensure_ascii=False)
+    return Response(response_json, content_type="application/json; charset=utf-8")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
