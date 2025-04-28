@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import random
 import re
 
 app = Flask(__name__)
+CORS(app)  # เปิดใช้งาน CORS
 
 # ข้อความทำนายสำหรับแต่ละเดือน
 monthly_fortunes = [
