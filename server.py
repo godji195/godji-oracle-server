@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 import random
+import re
 
 app = Flask(__name__)
 
-# ข้อความทำนายแต่ละเดือน
+# ข้อความทำนายสำหรับแต่ละเดือน
 monthly_fortunes = [
     "เดือนนี้คุณจะได้รับโอกาสใหม่ ๆ ในการทำงาน",
     "เดือนนี้ความรักจะสดใส มีคนเข้ามาทำให้หัวใจเต้นแรง",
@@ -19,10 +20,34 @@ monthly_fortunes = [
     "เดือนนี้โชคชะตาหนุนส่ง เหมาะกับการวางแผนอนาคต"
 ]
 
+# แผนที่แปลงชื่อเดือนภาษาไทยเป็นตัวเลข
+month_mapping = {
+    "มกราคม": "01", "ม.ค.": "01", "มค": "01",
+    "กุมภาพันธ์": "02", "ก.พ.": "02", "กพ": "02",
+    "มีนาคม": "03", "มี.ค.": "03", "มีค": "03",
+    "เมษายน": "04", "เม.ย.": "04", "เมย": "04",
+    "พฤษภาคม": "05", "พ.ค.": "05", "พค": "05",
+    "มิถุนายน": "06", "มิ.ย.": "06", "มิย": "06",
+    "กรกฎาคม": "07", "ก.ค.": "07", "กค": "07",
+    "สิงหาคม": "08", "ส.ค.": "08", "สค": "08",
+    "กันยายน": "09", "ก.ย.": "09", "กย": "09",
+    "ตุลาคม": "10", "ต.ค.": "10", "ตค": "10",
+    "พฤศจิกายน": "11", "พ.ย.": "11", "พย": "11",
+    "ธันวาคม": "12", "ธ.ค.": "12", "ธค": "12"
+}
+
+# ฟังก์ชันแปลงเดือนภาษาไทย
+def normalize_birth_date(birth_date):
+    for th_month, num_month in month_mapping.items():
+        birth_date = re.sub(th_month, num_month, birth_date)
+    birth_date = birth_date.replace(" ", "/").replace("-", "/")
+    return birth_date
+
 @app.route('/fortune', methods=['POST'])
 def fortune():
     data = request.get_json()
-    birth_date = data.get('birth_date')
+    birth_date_raw = data.get('birth_date', '')
+    birth_date = normalize_birth_date(birth_date_raw)
 
     months = [
         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
@@ -30,7 +55,6 @@ def fortune():
         "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
     ]
 
-    # สุ่มคำทำนายรายเดือน
     year_fortune = {}
     for month in months:
         year_fortune[month] = random.choice(monthly_fortunes)
